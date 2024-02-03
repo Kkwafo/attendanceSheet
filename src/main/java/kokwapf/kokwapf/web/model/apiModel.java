@@ -1,2 +1,4 @@
-package kokwapf.kokwapf.web.model;public class apiModel {
+package kokwapf.kokwapf.web.model;
+
+public class apiModel {
 }

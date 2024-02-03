@@ -14,6 +14,7 @@ import java.util.UUID;
 @Builder
 public class attendanceSheetDto {
     private UUID id;
+    private String fileName;
     private String studentName;
     private String studentRegisterNumber;
     private LocalDate dayOffEvent;
