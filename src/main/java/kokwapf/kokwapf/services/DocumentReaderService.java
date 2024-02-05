@@ -3,46 +3,19 @@ package kokwapf.kokwapf.services;
 
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
-import java.io.FileReader;
-import java.io.Reader;
+
+import java.util.StringJoiner;
 
 @Service
 public class DocumentReaderService {
-    private File filePath = new File("");
 
-    private boolean isExcelFile(String filePath) {
-
-        return filePath.endsWith(".xlsx") || filePath.endsWith(".xls");
-    }
-
-    private boolean isCsvFile(String filePath) {
-
-        return filePath.endsWith(".csv");
-    }
-
-
-
-    public List<String> getListOfFiles() {
-        File folder = new File("C:\\Users\\Averyl\\Desktop\\projects\\Documents");
-        File[] listOfFiles = folder.listFiles();
-
-        List<String> fileNames = new ArrayList<>();
-
-        for (File file : listOfFiles) {
-            if (file.isFile()) {
-                fileNames.add(file.getName());
-                System.out.println(file.getName());
-            }
-        }
-        return fileNames;
-    }
     public boolean isValidFileType(String fileName) {
 
         if (fileName.endsWith(".xlsx") || fileName.endsWith(".xls")) {
@@ -58,29 +31,21 @@ public class DocumentReaderService {
     public String readFromFile(String fileName) throws IOException {
         File file = new File(basePath, fileName);
 
-        try (Reader reader = new FileReader(file);
-             CSVParser csvParser = CSVFormat.DEFAULT.parse(reader)) {
+        StringBuilder content = new StringBuilder();
 
-            StringBuilder content = new StringBuilder();
-
+        try (
+                BufferedReader reader = Files.newBufferedReader(file.toPath());
+                CSVParser csvParser = CSVFormat.DEFAULT.parse(reader)
+        ) {
             for (CSVRecord csvRecord : csvParser) {
-                int numColumns = csvRecord.size();
+                StringJoiner line = new StringJoiner(", ");
 
-                for (int i = 0; i < numColumns; i++) {
-                    String columnValue = csvRecord.get(i);
-                    content.append(columnValue);
-
-                    // Agrega una coma después de cada valor, excepto para el último
-                    if (i < numColumns - 1) {
-                        content.append(", ");
-                    }
-                }
-                // Agrega un salto de línea al final de cada línea del CSV
+                csvRecord.forEach(line::add);
+                content.append(line);
                 content.append("\n");
             }
-
-            return content.toString();
         }
+        return content.toString();
     }
 
 }
